@@ -1,0 +1,292 @@
+```react
+import React, { useState } from 'react';
+import { 
+  ShoppingCart, 
+  Music, 
+  Crown,
+  ArrowLeft,
+  X,
+  CreditCard,
+  Plus,
+  ChevronRight
+} from 'lucide-react';
+
+export default function App() {
+  const [page, setPage] = useState('login');
+  const [user, setUser] = useState({ name: '', seat: '', type: 'Reguler' });
+  const [cart, setCart] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Menu diperbarui: Menu terakhir sekarang adalah Es Teh Jawa
+  const menu = [
+    { 
+      id: 1, 
+      name: "Mie Goreng Telor", 
+      price: 45000, 
+      category: "Makanan", 
+      image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=800&auto=format&fit=crop",
+      desc: "Mie goreng khas Damar dengan bumbu rempah autentik, telur mata sapi, dan acar segar."
+    },
+    { 
+      id: 2, 
+      name: "Bebek Betawi Sambel Petir", 
+      price: 125000, 
+      category: "Makanan", 
+      image: "https://images.unsplash.com/photo-1516100882582-96c3a05fe590?q=80&w=800&auto=format&fit=crop",
+      desc: "Bebek goreng krispi bumbu ungkep Betawi disajikan dengan sambal korek ekstra pedas."
+    },
+    { 
+      id: 3, 
+      name: "Arak Bali Asli", 
+      price: 150000, 
+      category: "Minuman", 
+      image: "https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?q=80&w=800&auto=format&fit=crop",
+      desc: "Minuman tradisional Bali kualitas premium hasil distilasi pohon nira, murni dan autentik."
+    },
+    { 
+      id: 4, 
+      name: "Es Teh Jawa", 
+      price: 15000, 
+      category: "Minuman", 
+      image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800&auto=format&fit=crop",
+      desc: "Teh melati khas Jawa yang diseduh kental dengan aroma wangi yang menenangkan dan menyegarkan."
+    }
+  ];
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const exists = prev.find(i => i.id === item.id);
+      if (exists) return prev.map(i => i.id === item.id ? {...i, qty: i.qty + 1} : i);
+      return [...prev, {...item, qty: 1}];
+    });
+  };
+
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(i => i.id !== id));
+  };
+
+  const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const tax = totalPrice * 0.1;
+  const grandTotal = totalPrice + tax;
+
+  if (page === 'login') {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-8 text-neutral-100">
+        <div className="w-full max-w-sm space-y-12">
+          <div className="text-center">
+            <h1 className="text-6xl font-serif tracking-tighter text-amber-500 italic">Damar</h1>
+            <p className="text-stone-500 text-[10px] uppercase tracking-[0.5em] mt-3 font-medium">Warisan Nusantara</p>
+          </div>
+          
+          <div className="bg-neutral-900/40 border border-white/5 p-8 rounded-[3rem] space-y-8 backdrop-blur-xl shadow-2xl">
+            <div className="space-y-5">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-stone-500 ml-1">Nama Tamu</label>
+                <input 
+                  type="text" 
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 mt-2 text-sm focus:border-amber-500 outline-none transition-all text-white"
+                  placeholder="Nama Lengkap"
+                  onChange={e => setUser({...user, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-stone-500 ml-1">No. Meja</label>
+                <input 
+                  type="text" 
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 mt-2 text-sm focus:border-amber-500 outline-none transition-all text-white"
+                  placeholder="01"
+                  onChange={e => setUser({...user, seat: e.target.value})}
+                />
+              </div>
+            </div>
+            <button 
+              disabled={!user.name || !user.seat}
+              onClick={() => setPage('home')}
+              className="w-full bg-white text-black font-bold py-5 rounded-2xl shadow-xl active:scale-95 transition-all disabled:opacity-20"
+            >
+              Mulai Pesanan
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 max-w-md mx-auto relative flex flex-col font-sans border-x border-white/5">
+      {/* Header */}
+      <header className="px-6 py-10 flex justify-between items-center sticky top-0 bg-neutral-950/95 backdrop-blur-xl z-30">
+        <div>
+          <h2 className="text-3xl font-serif italic text-amber-500">Damar</h2>
+          <p className="text-[9px] uppercase tracking-[0.4em] text-stone-500 mt-1">Meja {user.seat} • {user.type}</p>
+        </div>
+        <button onClick={() => setPage('cart')} className="relative p-4 bg-white/5 rounded-2xl border border-white/10">
+          <ShoppingCart size={20} className="text-stone-300" />
+          {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-amber-600 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold text-white shadow-lg">
+              {cart.reduce((a, b) => a + b.qty, 0)}
+            </span>
+          )}
+        </button>
+      </header>
+
+      <main className="px-6 pb-40 flex-1 overflow-y-auto space-y-12">
+        {/* Banner Hiburan */}
+        <div className="bg-gradient-to-br from-neutral-900 to-black rounded-[2.5rem] p-6 border border-white/5 flex items-center justify-between shadow-2xl">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center border border-amber-500/20">
+              <Music size={20} className="text-amber-500 animate-pulse" />
+            </div>
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.3em] text-stone-500 mb-1">Sedang Diputar</p>
+              <h3 className="text-sm font-bold tracking-tight">Keroncong Modern</h3>
+            </div>
+          </div>
+          <div className="flex gap-1.5 items-end h-5">
+             {[0.4, 0.7, 0.2, 0.9, 0.5].map((s, i) => (
+               <div key={i} className="w-1 bg-amber-500 rounded-full" style={{ height: `${s * 100}%`, animation: `bounce 1.2s ease-in-out infinite ${i * 0.15}s` }}></div>
+             ))}
+          </div>
+        </div>
+
+        {/* Menu Grid */}
+        {['Makanan', 'Minuman'].map(cat => (
+          <div key={cat} className="space-y-8">
+            <div className="flex items-center gap-4">
+              <h3 className="text-sm uppercase tracking-[0.5em] text-stone-500 font-bold">{cat}</h3>
+              <div className="h-[1px] flex-1 bg-white/5"></div>
+            </div>
+            <div className="space-y-8">
+              {menu.filter(m => m.category === cat).map(item => (
+                <div key={item.id} className="group relative">
+                  <div className="flex gap-6 items-center">
+                    <div className="w-28 h-28 rounded-3xl overflow-hidden border border-white/5 flex-shrink-0 shadow-2xl">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <h4 className="text-base font-bold tracking-tight text-white">{item.name}</h4>
+                      <p className="text-[11px] text-stone-500 leading-relaxed italic">"{item.desc}"</p>
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-sm font-bold text-amber-500">Rp {item.price.toLocaleString()}</span>
+                        <button 
+                          onClick={() => addToCart(item)}
+                          className="bg-white/5 p-2.5 rounded-xl border border-white/10 hover:bg-white hover:text-black transition-all active:scale-90"
+                        >
+                          <Plus size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </main>
+
+      {/* Cart Summary Floating */}
+      {cart.length > 0 && page === 'home' && (
+        <div className="fixed bottom-10 left-6 right-6 z-40">
+          <button 
+            onClick={() => setPage('cart')}
+            className="w-full bg-white text-black p-6 rounded-[2rem] flex justify-between items-center shadow-2xl active:scale-95 transition-all"
+          >
+            <div className="flex items-center gap-4">
+               <div className="w-10 h-10 bg-black text-white rounded-2xl flex items-center justify-center font-bold">
+                 {cart.reduce((a, b) => a + b.qty, 0)}
+               </div>
+               <span className="text-xs uppercase font-black tracking-widest">Keranjang Pesanan</span>
+            </div>
+            <span className="text-sm font-black italic underline decoration-amber-500 underline-offset-4">Rp {grandTotal.toLocaleString()}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Cart Page */}
+      {page === 'cart' && (
+        <div className="fixed inset-0 z-50 bg-neutral-950 p-8 flex flex-col">
+          <div className="flex items-center gap-4 mb-12">
+            <button onClick={() => setPage('home')} className="p-3 border border-white/10 rounded-2xl text-stone-400">
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-xl uppercase tracking-[0.3em] font-serif italic text-amber-500">Tagihan</h2>
+          </div>
+
+          <div className="flex-1 space-y-6 overflow-y-auto">
+            {cart.map(item => (
+              <div key={item.id} className="flex justify-between items-center p-5 bg-white/5 border border-white/5 rounded-[2rem]">
+                <div className="flex gap-5 items-center">
+                   <img src={item.image} className="w-16 h-16 rounded-2xl object-cover" alt="" />
+                   <div>
+                     <p className="text-sm font-bold text-white">{item.name}</p>
+                     <p className="text-[11px] text-amber-500 font-medium">{item.qty} x Rp {item.price.toLocaleString()}</p>
+                   </div>
+                </div>
+                <button onClick={() => removeFromCart(item.id)} className="p-3 text-stone-600">
+                  <X size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-10 border-t border-white/5 mt-8 space-y-5">
+             <div className="flex justify-between text-xs text-stone-500 uppercase tracking-widest px-2 font-bold">
+                <span>Subtotal</span>
+                <span>Rp {totalPrice.toLocaleString()}</span>
+             </div>
+             <div className="flex justify-between text-lg font-serif italic pt-2 px-2">
+                <span className="text-stone-400">Total Akhir</span>
+                <span className="text-amber-500 font-sans not-italic font-black text-2xl">Rp {grandTotal.toLocaleString()}</span>
+             </div>
+             <button 
+               onClick={() => setShowPaymentModal(true)}
+               className="w-full bg-amber-600 text-white py-6 rounded-[2rem] font-black uppercase tracking-widest mt-6 shadow-2xl"
+             >
+               Bayar Sekarang
+             </button>
+          </div>
+        </div>
+      )}
+
+      {/* QRIS Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-[60] bg-neutral-950 p-8 flex flex-col items-center justify-center">
+          <div className="w-full flex justify-end mb-4">
+             <button onClick={() => setShowPaymentModal(false)} className="p-3 bg-white/5 rounded-full"><X size={24} /></button>
+          </div>
+          
+          <div className="bg-white p-6 rounded-[3rem] shadow-2xl mb-8">
+            {/* Menggunakan image QRIS asli */}
+            <img 
+              src={`/artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default'}/public/data/qris_image`} 
+              alt="QRIS Damar" 
+              className="w-64 h-64 object-contain rounded-2xl"
+              onError={(e) => {
+                e.target.src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=DamarPayment";
+              }}
+            />
+          </div>
+
+          <div className="text-center space-y-2">
+            <h4 className="text-3xl font-black text-white italic">Rp {grandTotal.toLocaleString()}</h4>
+            <p className="text-stone-500 text-xs uppercase tracking-widest">Silakan scan QRIS untuk menyelesaikan pembayaran</p>
+          </div>
+
+          <button 
+             onClick={() => {
+               alert("Terima kasih! Pesanan Anda segera disiapkan.");
+               setPage('login');
+               setCart([]);
+               setShowPaymentModal(false);
+             }}
+             className="w-full bg-white text-black py-6 rounded-[2rem] font-black uppercase tracking-widest mt-12 shadow-2xl active:scale-95 transition-all"
+          >
+            Selesai Membayar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+```
